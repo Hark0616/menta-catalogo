@@ -2,7 +2,7 @@
 const nextConfig = {
   // Compresión y optimización
   compress: true,
-  
+
   // Optimización de imágenes - usando remotePatterns (recomendado en Next.js 14+)
   images: {
     remotePatterns: [
@@ -23,10 +23,7 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60,
   },
-  
-  // Optimización de producción
-  swcMinify: true,
-  
+
   // Headers de seguridad
   async headers() {
     return [
@@ -46,10 +43,7 @@ const nextConfig = {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
           },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
+
           {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
