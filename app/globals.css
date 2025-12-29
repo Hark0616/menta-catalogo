@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #E3EDCA;
+  --bg-soft: #EDF3E0;
+  --text-primary: #0A1612;
+  --text-body: #1A2E23;
+  --text-muted: #4A5D52;
+  --gold: #9A7B4F;
+  --border: #C5D4B0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-body);
+  font-family: var(--font-body);
+  min-height: 100vh;
+}
+
+/* Textura noise sutil */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.015;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* Animación de entrada */
+@keyframes reveal {
+  from { 
+    opacity: 0; 
+    transform: translateY(16px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+.reveal { 
+  animation: reveal 0.6s ease-out forwards; 
+}
+
+.delay-1 { 
+  animation-delay: 0.1s; 
+  opacity: 0; 
+}
+
+.delay-2 { 
+  animation-delay: 0.2s; 
+  opacity: 0; 
+}
+
+.delay-3 { 
+  animation-delay: 0.3s; 
+  opacity: 0; 
+}
+
+.delay-4 { 
+  animation-delay: 0.4s; 
+  opacity: 0; 
+}
