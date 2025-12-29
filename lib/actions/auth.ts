@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { logAudit } from '@/lib/logger'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -10,8 +11,8 @@ export async function login(formData: FormData) {
   if (!supabase) {
     const hasUrl = !!process.env.NEXT_PUBLIC_SUPABASE_URL
     const hasKey = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    return { 
-      error: `Supabase no está configurado. URL: ${hasUrl ? '✓' : '✗'}, Key: ${hasKey ? '✓' : '✗'}. Verifica las variables de entorno en Vercel.` 
+    return {
+      error: `Supabase no está configurado. URL: ${hasUrl ? '✓' : '✗'}, Key: ${hasKey ? '✓' : '✗'}. Verifica las variables de entorno en Vercel.`
     }
   }
 
@@ -26,6 +27,8 @@ export async function login(formData: FormData) {
     return { error: error.message }
   }
 
+  await logAudit('LOGIN', 'auth', { email: data.email })
+
   revalidatePath('/', 'layout')
   redirect('/admin')
 }
@@ -34,6 +37,7 @@ export async function logout() {
   const supabase = await createClient()
   if (supabase) {
     await supabase.auth.signOut()
+    await logAudit('LOGOUT', 'auth')
   }
   revalidatePath('/', 'layout')
   redirect('/login')

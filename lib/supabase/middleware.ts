@@ -54,6 +54,17 @@ export async function updateSession(request: NextRequest) {
       url.pathname = '/login'
       return NextResponse.redirect(url)
     }
+
+    // A01: Broken Access Control Fix
+    // Check if user has admin role in app_metadata
+    const role = user.app_metadata.role
+    if (role !== 'admin') {
+      console.warn(`Unauthorized access attempt to /admin by ${user.email}`)
+      // Redirigir a home si no es admin
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
   }
 
   // Si está en login y ya tiene sesión, redirigir al admin

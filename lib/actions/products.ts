@@ -3,11 +3,12 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { logAudit } from '@/lib/logger'
 
 export async function getProducts() {
   const supabase = await createClient()
   if (!supabase) return []
-  
+
   const { data, error } = await supabase
     .from('products')
     .select(`
@@ -27,7 +28,7 @@ export async function getProducts() {
 export async function getProduct(id: string) {
   const supabase = await createClient()
   if (!supabase) return null
-  
+
   const { data, error } = await supabase
     .from('products')
     .select(`
@@ -67,6 +68,8 @@ export async function createProduct(formData: FormData) {
     return { error: error.message }
   }
 
+  await logAudit('CREATE_PRODUCT', 'products', { name: product.name })
+
   revalidatePath('/admin/productos')
   revalidatePath('/')
   redirect('/admin/productos')
@@ -97,6 +100,8 @@ export async function updateProduct(id: string, formData: FormData) {
     return { error: error.message }
   }
 
+  await logAudit('UPDATE_PRODUCT', `products/${id}`, { name: product.name })
+
   revalidatePath('/admin/productos')
   revalidatePath('/')
   redirect('/admin/productos')
@@ -116,6 +121,8 @@ export async function deleteProduct(id: string) {
     return { error: error.message }
   }
 
+  await logAudit('DELETE_PRODUCT', `products/${id}`)
+
   revalidatePath('/admin/productos')
   revalidatePath('/')
   return { success: true }
@@ -134,6 +141,8 @@ export async function toggleProductActive(id: string, isActive: boolean) {
     console.error('Error toggling product:', error)
     return { error: error.message }
   }
+
+  await logAudit('TOGGLE_PRODUCT', `products/${id}`, { is_active: isActive })
 
   revalidatePath('/admin/productos')
   revalidatePath('/')
