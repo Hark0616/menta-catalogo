@@ -27,11 +27,6 @@ const nextConfig = {
   // Optimización de producción
   swcMinify: true,
   
-  // Optimización de bundle
-  experimental: {
-    optimizePackageImports: ['lucide-react'],
-  },
-  
   // Headers de seguridad
   async headers() {
     return [

@@ -12,8 +12,8 @@ class SharedIntersectionObserver {
   };
 
   constructor(options?: IntersectionObserverInit) {
+    this.defaultOptions = { ...this.defaultOptions, ...options };
     if (typeof window !== 'undefined') {
-      this.defaultOptions = { ...this.defaultOptions, ...options };
       this.observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
@@ -53,12 +53,8 @@ let sharedObserverInstance: SharedIntersectionObserver | null = null;
 
 function getSharedObserver(options?: IntersectionObserverInit): SharedIntersectionObserver {
   if (typeof window === 'undefined') {
-    // SSR fallback
-    return {
-      observe: () => {},
-      unobserve: () => {},
-      disconnect: () => {},
-    } as SharedIntersectionObserver;
+    // SSR fallback - crear instancia que no hace nada
+    return new SharedIntersectionObserver(options);
   }
 
   if (!sharedObserverInstance) {

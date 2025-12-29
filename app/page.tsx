@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
+import ScrollReveal from '@/components/ScrollReveal';
 import { products } from '@/lib/placeholder-data';
 
 // Dynamic imports para componentes no críticos (mejora First Contentful Paint)
@@ -18,8 +19,6 @@ const ProductGrid = dynamic(() => import('@/components/ProductGrid'), {
     </div>
   ),
 });
-
-const ScrollReveal = dynamic(() => import('@/components/ScrollReveal'));
 
 export default function Home() {
   return (
