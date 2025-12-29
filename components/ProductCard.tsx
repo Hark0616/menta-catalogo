@@ -11,8 +11,19 @@ export default function ProductCard({ product }: ProductCardProps) {
     <a 
       href={product.affiliateLink}
       target="_blank"
-      rel="noopener noreferrer"
+      rel="noopener noreferrer nofollow"
       className="group block"
+      // Prefetch solo en hover para no bloquear recursos
+      onMouseEnter={() => {
+        if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+          window.requestIdleCallback(() => {
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = product.affiliateLink;
+            document.head.appendChild(link);
+          });
+        }
+      }}
     >
       {/* Imagen */}
       <div className="relative aspect-[3/4] overflow-hidden bg-white mb-5">
@@ -23,6 +34,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           className="object-cover transition-transform duration-700 
             group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          loading="lazy"
+          placeholder="blur"
+          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+          style={{ willChange: 'transform' }} // Optimización GPU para hover
         />
         
         {/* Badge marca - con fondo para mejor legibilidad */}

@@ -1,13 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
-
-interface ScrollRevealProps {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-  direction?: 'up' | 'down' | 'left' | 'right' | 'none';
-}
+import { useEffect, useRef, useState } from 'react';
 
 // Singleton para compartir un único IntersectionObserver
 class SharedIntersectionObserver {
@@ -46,6 +39,13 @@ class SharedIntersectionObserver {
     this.callbacks.delete(element);
     this.observer.unobserve(element);
   }
+
+  disconnect() {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.callbacks.clear();
+    }
+  }
 }
 
 // Instancia global compartida
@@ -53,9 +53,11 @@ let sharedObserverInstance: SharedIntersectionObserver | null = null;
 
 function getSharedObserver(options?: IntersectionObserverInit): SharedIntersectionObserver {
   if (typeof window === 'undefined') {
+    // SSR fallback
     return {
       observe: () => {},
       unobserve: () => {},
+      disconnect: () => {},
     } as SharedIntersectionObserver;
   }
 
@@ -65,24 +67,20 @@ function getSharedObserver(options?: IntersectionObserverInit): SharedIntersecti
   return sharedObserverInstance;
 }
 
-export default function ScrollReveal({ 
-  children, 
-  className = '',
-  delay = 0,
-  direction = 'up'
-}: ScrollRevealProps) {
-  const ref = useRef<HTMLDivElement>(null);
+export function useSharedObserver(options?: IntersectionObserverInit) {
+  const ref = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
 
-    const observer = getSharedObserver();
+    const observer = getSharedObserver(options);
     
     const callback = (isIntersecting: boolean) => {
       if (isIntersecting) {
         setIsVisible(true);
+        // Auto-unobserve después de ser visible (optimización)
         observer.unobserve(element);
       }
     };
@@ -92,34 +90,8 @@ export default function ScrollReveal({
     return () => {
       observer.unobserve(element);
     };
-  }, []);
+  }, [options?.threshold, options?.rootMargin]);
 
-  const getTransform = () => {
-    switch (direction) {
-      case 'up': return 'translateY(30px)';
-      case 'down': return 'translateY(-30px)';
-      case 'left': return 'translateX(30px)';
-      case 'right': return 'translateX(-30px)';
-      case 'none': return 'none';
-      default: return 'translateY(30px)';
-    }
-  };
-
-  return (
-    <div
-      ref={ref}
-      className={className}
-      style={{
-        opacity: isVisible ? 1 : 0,
-        transform: isVisible ? 'none' : getTransform(),
-        transition: `opacity 0.6s ease-out ${delay}s, transform 0.6s ease-out ${delay}s`,
-        willChange: isVisible ? 'auto' : 'opacity, transform', // Optimización GPU
-      }}
-    >
-      {children}
-    </div>
-  );
+  return { ref, isVisible };
 }
-
-
 
