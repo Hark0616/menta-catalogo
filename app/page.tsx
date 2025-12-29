@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import ScrollReveal from '@/components/ScrollReveal';
-import { products } from '@/lib/placeholder-data';
+import { getActiveProducts } from '@/lib/data';
 
 // Dynamic imports para componentes no críticos (mejora First Contentful Paint)
 const ProductGrid = dynamic(() => import('@/components/ProductGrid'), {
@@ -20,7 +20,8 @@ const ProductGrid = dynamic(() => import('@/components/ProductGrid'), {
   ),
 });
 
-export default function Home() {
+export default async function Home() {
+  const products = await getActiveProducts();
   return (
     <main className="min-h-screen">
       <Navbar />

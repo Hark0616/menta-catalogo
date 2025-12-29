@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Product } from '@/lib/placeholder-data';
+import type { Product } from '@/lib/types/database';
 import ProductCard from './ProductCard';
 import ScrollReveal from './ScrollReveal';
 

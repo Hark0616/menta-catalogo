@@ -1,25 +1,28 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
-import { Product } from '@/lib/placeholder-data';
+import type { Product } from '@/lib/types/database';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const imageUrl = product.image_url || 'https://picsum.photos/400/400';
+  
   return (
     <a 
-      href={product.affiliateLink}
+      href={product.affiliate_link}
       target="_blank"
       rel="noopener noreferrer nofollow"
       className="group block"
-      // Prefetch solo en hover para no bloquear recursos
       onMouseEnter={() => {
         if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
           window.requestIdleCallback(() => {
             const link = document.createElement('link');
             link.rel = 'prefetch';
-            link.href = product.affiliateLink;
+            link.href = product.affiliate_link;
             document.head.appendChild(link);
           });
         }
@@ -28,7 +31,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Imagen */}
       <div className="relative aspect-[3/4] overflow-hidden bg-white mb-5">
         <Image
-          src={product.imageUrl}
+          src={imageUrl}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-700 
@@ -37,10 +40,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           loading="lazy"
           placeholder="blur"
           blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-          style={{ willChange: 'transform' }} // Optimización GPU para hover
+          style={{ willChange: 'transform' }}
         />
         
-        {/* Badge marca - con fondo para mejor legibilidad */}
+        {/* Badge marca */}
         <span className="absolute top-4 left-4 bg-white/80 backdrop-blur-sm 
           px-3 py-1.5 text-jungle-muted text-[10px] tracking-[0.15em] uppercase">
           {product.brand}
