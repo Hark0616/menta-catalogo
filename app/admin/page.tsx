@@ -4,6 +4,10 @@ import Link from 'next/link'
 async function getStats() {
   const supabase = await createClient()
   
+  if (!supabase) {
+    return { totalProducts: 0, totalCategories: 0 }
+  }
+
   const [productsResult, categoriesResult] = await Promise.all([
     supabase.from('products').select('*', { count: 'exact', head: true }),
     supabase.from('categories').select('*', { count: 'exact', head: true }),

@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function getProducts() {
   const supabase = await createClient()
+  if (!supabase) return []
   
   const { data, error } = await supabase
     .from('products')
@@ -25,6 +26,7 @@ export async function getProducts() {
 
 export async function getProduct(id: string) {
   const supabase = await createClient()
+  if (!supabase) return null
   
   const { data, error } = await supabase
     .from('products')
@@ -45,6 +47,7 @@ export async function getProduct(id: string) {
 
 export async function createProduct(formData: FormData) {
   const supabase = await createClient()
+  if (!supabase) return { error: 'Supabase no configurado' }
 
   const product = {
     name: formData.get('name') as string,
@@ -71,6 +74,7 @@ export async function createProduct(formData: FormData) {
 
 export async function updateProduct(id: string, formData: FormData) {
   const supabase = await createClient()
+  if (!supabase) return { error: 'Supabase no configurado' }
 
   const product = {
     name: formData.get('name') as string,
@@ -100,6 +104,7 @@ export async function updateProduct(id: string, formData: FormData) {
 
 export async function deleteProduct(id: string) {
   const supabase = await createClient()
+  if (!supabase) return { error: 'Supabase no configurado' }
 
   const { error } = await supabase
     .from('products')
@@ -118,6 +123,7 @@ export async function deleteProduct(id: string) {
 
 export async function toggleProductActive(id: string, isActive: boolean) {
   const supabase = await createClient()
+  if (!supabase) return { error: 'Supabase no configurado' }
 
   const { error } = await supabase
     .from('products')

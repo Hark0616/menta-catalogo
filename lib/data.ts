@@ -17,6 +17,11 @@ export interface ProductWithCategory extends Product {
 export async function getActiveProducts(): Promise<ProductWithCategory[]> {
   const supabase = await createClient()
   
+  // Si no hay Supabase configurado, usar fallback
+  if (!supabase) {
+    return getFallbackProducts()
+  }
+
   const { data, error } = await supabase
     .from('products')
     .select(`
@@ -28,11 +33,9 @@ export async function getActiveProducts(): Promise<ProductWithCategory[]> {
 
   if (error) {
     console.error('Error fetching products:', error)
-    // Fallback a datos de placeholder si hay error
     return getFallbackProducts()
   }
 
-  // Si no hay productos en la DB, usar fallback
   if (!data || data.length === 0) {
     return getFallbackProducts()
   }
@@ -43,6 +46,10 @@ export async function getActiveProducts(): Promise<ProductWithCategory[]> {
 export async function getPublicCategories(): Promise<Category[]> {
   const supabase = await createClient()
   
+  if (!supabase) {
+    return getFallbackCategories()
+  }
+
   const { data, error } = await supabase
     .from('categories')
     .select('*')
