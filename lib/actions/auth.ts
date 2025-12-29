@@ -8,7 +8,11 @@ export async function login(formData: FormData) {
   const supabase = await createClient()
 
   if (!supabase) {
-    return { error: 'Supabase no está configurado' }
+    const hasUrl = !!process.env.NEXT_PUBLIC_SUPABASE_URL
+    const hasKey = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    return { 
+      error: `Supabase no está configurado. URL: ${hasUrl ? '✓' : '✗'}, Key: ${hasKey ? '✓' : '✗'}. Verifica las variables de entorno en Vercel.` 
+    }
   }
 
   const data = {
