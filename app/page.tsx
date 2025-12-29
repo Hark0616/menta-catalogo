@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import ScrollReveal from '@/components/ScrollReveal';
-import { getActiveProducts } from '@/lib/data';
+import { getActiveProducts, getPublicCategories, organizeCategories } from '@/lib/data';
 
 // Dynamic imports para componentes no críticos (mejora First Contentful Paint)
 const ProductGrid = dynamic(() => import('@/components/ProductGrid'), {
@@ -22,9 +22,12 @@ const ProductGrid = dynamic(() => import('@/components/ProductGrid'), {
 
 export default async function Home() {
   const products = await getActiveProducts();
+  const categories = await getPublicCategories();
+  const organizedCategories = organizeCategories(categories);
+  
   return (
     <main className="min-h-screen">
-      <Navbar />
+      <Navbar categories={organizedCategories} />
       <Hero />
       
       <section id="productos" className="py-28 lg:py-36 px-6 lg:px-8 bg-mint-soft">

@@ -2,18 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import type { CategoryWithSubcategories } from '@/lib/data';
 
-const categories = [
-  { name: 'Perfumes', subcategories: ['Masculino', 'Femenino', 'Niños'] },
-  { name: 'Cuidados diarios', subcategories: [] },
-  { name: 'Cabello', subcategories: [] },
-  { name: 'Rostro', subcategories: [] },
-  { name: 'Maquillaje', subcategories: [] },
-  { name: 'Hogar', subcategories: [] },
-  { name: 'Cocina', subcategories: [] }
-];
+interface NavbarProps {
+  categories: CategoryWithSubcategories[];
+}
 
-export default function Navbar() {
+export default function Navbar({ categories }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(false);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -47,8 +42,8 @@ export default function Navbar() {
     };
   }, [isMobileMenuOpen]);
 
-  const toggleCategory = (categoryName: string) => {
-    setExpandedCategory(expandedCategory === categoryName ? null : categoryName);
+  const toggleCategory = (categoryId: string) => {
+    setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
   };
 
   const closeMobileMenu = () => {
@@ -124,15 +119,15 @@ export default function Navbar() {
                       border border-mint-border/30 w-56 overflow-hidden">
                       <div className="py-3">
                         {categories.map((category, index) => {
-                          const isExpanded = expandedCategory === category.name;
+                          const isExpanded = expandedCategory === category.id;
                           const hasSubcategories = category.subcategories.length > 0;
 
                           return (
-                            <div key={index}>
+                            <div key={category.id}>
                               <div className="px-5 py-2.5 hover:bg-mint/30 transition-colors duration-200">
                                 {hasSubcategories ? (
                                   <button
-                                    onClick={() => toggleCategory(category.name)}
+                                    onClick={() => toggleCategory(category.id)}
                                     className="w-full text-left text-jungle text-sm flex items-center 
                                       justify-between hover:text-jungle-deep transition-colors"
                                   >
@@ -149,7 +144,7 @@ export default function Navbar() {
                                   </button>
                                 ) : (
                                   <a
-                                    href={`#productos-${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                                    href={`#productos-${category.slug}`}
                                     className="block text-jungle text-sm hover:text-jungle-deep transition-colors"
                                   >
                                     {category.name}
@@ -161,14 +156,14 @@ export default function Navbar() {
                                   ${isExpanded ? 'grid-rows-[1fr] opacity-100 mt-2' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
                                   <div className="overflow-hidden">
                                     <div className="pl-3 space-y-1 border-l border-mint-border/50">
-                                      {category.subcategories.map((subcategory, subIndex) => (
+                                      {category.subcategories.map((subcategory) => (
                                         <a
-                                          key={subIndex}
-                                          href={`#productos-${category.name.toLowerCase().replace(/\s+/g, '-')}-${subcategory.toLowerCase()}`}
+                                          key={subcategory.id}
+                                          href={`#productos-${category.slug}-${subcategory.slug}`}
                                           className="block py-1.5 text-jungle-muted text-xs 
                                             hover:text-jungle-deep transition-colors"
                                         >
-                                          {subcategory}
+                                          {subcategory.name}
                                         </a>
                                       ))}
                                     </div>
@@ -230,15 +225,15 @@ export default function Navbar() {
           </div>
           
           {categories.map((category, index) => {
-            const isExpanded = expandedCategory === category.name;
+            const isExpanded = expandedCategory === category.id;
             const hasSubcategories = category.subcategories.length > 0;
 
             return (
-              <div key={index}>
+              <div key={category.id}>
                 <div className="px-6 py-3 hover:bg-white/30 transition-colors duration-200">
                   {hasSubcategories ? (
                     <button
-                      onClick={() => toggleCategory(category.name)}
+                      onClick={() => toggleCategory(category.id)}
                       className="w-full text-left text-jungle text-sm flex items-center 
                         justify-between focus:outline-none"
                     >
@@ -255,7 +250,7 @@ export default function Navbar() {
                     </button>
                   ) : (
                     <a
-                      href={`#productos-${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                      href={`#productos-${category.slug}`}
                       onClick={closeMobileMenu}
                       className="block text-jungle text-sm hover:text-jungle-deep transition-colors"
                     >
@@ -268,15 +263,15 @@ export default function Navbar() {
                     ${isExpanded ? 'grid-rows-[1fr] opacity-100 mt-3' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
                     <div className="overflow-hidden">
                       <div className="pl-4 space-y-2 border-l border-gold/30">
-                        {category.subcategories.map((subcategory, subIndex) => (
+                        {category.subcategories.map((subcategory) => (
                           <a
-                            key={subIndex}
-                            href={`#productos-${category.name.toLowerCase().replace(/\s+/g, '-')}-${subcategory.toLowerCase()}`}
+                            key={subcategory.id}
+                            href={`#productos-${category.slug}-${subcategory.slug}`}
                             onClick={closeMobileMenu}
                             className="block py-1.5 text-jungle-muted text-sm 
                               hover:text-jungle-deep transition-colors"
                           >
-                            {subcategory}
+                            {subcategory.name}
                           </a>
                         ))}
                       </div>

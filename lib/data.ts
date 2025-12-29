@@ -67,6 +67,50 @@ export async function getPublicCategories(): Promise<Category[]> {
   return data
 }
 
+// Helper para organizar categorías en jerarquía (padres e hijos)
+export interface CategoryWithSubcategories {
+  id: string
+  name: string
+  slug: string
+  subcategories: Array<{
+    id: string
+    name: string
+    slug: string
+  }>
+}
+
+export function organizeCategories(categories: Category[]): CategoryWithSubcategories[] {
+  // Separar categorías padre (sin parent_id) y subcategorías (con parent_id)
+  const parentCategories = categories.filter(cat => !cat.parent_id)
+  const subcategories = categories.filter(cat => cat.parent_id)
+
+  // Organizar subcategorías por parent_id
+  const subcategoriesByParent = new Map<string, Array<{ id: string; name: string; slug: string }>>()
+  
+  subcategories.forEach(sub => {
+    if (sub.parent_id) {
+      if (!subcategoriesByParent.has(sub.parent_id)) {
+        subcategoriesByParent.set(sub.parent_id, [])
+      }
+      subcategoriesByParent.get(sub.parent_id)!.push({
+        id: sub.id,
+        name: sub.name,
+        slug: sub.slug,
+      })
+    }
+  })
+
+  // Construir el resultado con categorías padre y sus subcategorías
+  return parentCategories
+    .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+    .map(parent => ({
+      id: parent.id,
+      name: parent.name,
+      slug: parent.slug,
+      subcategories: subcategoriesByParent.get(parent.id) || [],
+    }))
+}
+
 // Datos de fallback mientras no haya productos en la DB
 function getFallbackProducts(): ProductWithCategory[] {
   return [
