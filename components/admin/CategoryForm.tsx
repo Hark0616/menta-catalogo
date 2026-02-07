@@ -58,14 +58,18 @@ export default function CategoryForm({ categories, menu }: CategoryFormProps) {
     }
   }
 
-  async function handleDelete(id: string, name: string) {
+  function onDeleteClick(id: string, name: string) {
     if (!confirm(`¿Estás segura de eliminar "${name}"? Las subcategorías también se eliminarán.`)) return
-    
     setDeleting(id)
+    setError(null)
+    requestAnimationFrame(() => {
+      performDelete(id)
+    })
+  }
+
+  async function performDelete(id: string) {
     const result = await deleteCategory(id)
-    if (result.error) {
-      setError(result.error)
-    }
+    if (result?.error) setError(result.error)
     setDeleting(null)
   }
 
@@ -198,7 +202,7 @@ export default function CategoryForm({ categories, menu }: CategoryFormProps) {
                           </svg>
                         </button>
                         <button
-                          onClick={() => handleDelete(category.id, category.name)}
+                          onClick={() => onDeleteClick(category.id, category.name)}
                           disabled={deleting === category.id}
                           className="p-1 text-jungle-muted hover:text-red-600 disabled:opacity-50"
                           title="Eliminar"
@@ -272,7 +276,7 @@ export default function CategoryForm({ categories, menu }: CategoryFormProps) {
                             </svg>
                           </button>
                           <button
-                            onClick={() => handleDelete(sub.id, sub.name)}
+                            onClick={() => onDeleteClick(sub.id, sub.name)}
                             disabled={deleting === sub.id}
                             className="p-1 text-jungle-muted hover:text-red-600 disabled:opacity-50"
                             title="Eliminar"
