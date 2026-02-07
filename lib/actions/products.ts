@@ -16,7 +16,7 @@ const ProductSchema = z.object({
   image_url: z.string().url('La URL de la imagen no es válida.').nullable(),
   affiliate_link: z.string().url('La URL de afiliado no es válida.'),
   brand: z.enum(['Natura', 'NovaVenta'], {
-    errorMap: () => ({ message: 'Marca no válida.' }),
+    message: 'Marca no válida.',
   }),
   category_id: z.string().nullable(),
   is_active: z.preprocess(
