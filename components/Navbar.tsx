@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import Link from 'next/link';
 import type { CategoryWithSubcategories } from '@/lib/data';
 
@@ -9,7 +9,7 @@ interface NavbarProps {
   categoriesNovaVenta: CategoryWithSubcategories[];
 }
 
-function CategoryDropdownContent({
+const CategoryDropdownContent = memo(function CategoryDropdownContent({
   categories,
   expandedCategoryId,
   onToggleCategory,
@@ -33,7 +33,10 @@ function CategoryDropdownContent({
             <div className="px-5 py-2.5 hover:bg-mint/30 transition-colors duration-200">
               {hasSubcategories ? (
                 <button
-                  onClick={() => onToggleCategory(category.id)}
+                  onClick={() => {
+                    const id = category.id;
+                    requestAnimationFrame(() => onToggleCategory(id));
+                  }}
                   className="w-full text-left text-jungle text-sm flex items-center 
                     justify-between hover:text-jungle-deep transition-colors"
                 >
@@ -83,9 +86,9 @@ function CategoryDropdownContent({
       })}
     </div>
   );
-}
+});
 
-function MobileCategoryBlock({
+const MobileCategoryBlock = memo(function MobileCategoryBlock({
   title,
   categories,
   expandedCategoryId,
@@ -117,7 +120,10 @@ function MobileCategoryBlock({
               <div className="px-6 py-3 hover:bg-white/30 transition-colors duration-200">
                 {hasSubcategories ? (
                   <button
-                    onClick={() => onToggleCategory(category.id)}
+                    onClick={() => {
+                      const id = category.id;
+                      requestAnimationFrame(() => onToggleCategory(id));
+                    }}
                     className="w-full text-left text-jungle text-sm flex items-center 
                       justify-between focus:outline-none"
                   >
@@ -170,7 +176,7 @@ function MobileCategoryBlock({
       )}
     </div>
   );
-}
+});
 
 export default function Navbar({ categoriesNatura, categoriesNovaVenta }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -206,11 +212,19 @@ export default function Navbar({ categoriesNatura, categoriesNovaVenta }: Navbar
     };
   }, [isMobileMenuOpen]);
 
-  const closeMobileMenu = () => {
+  const closeMobileMenu = useCallback(() => {
     setIsMobileMenuOpen(false);
     setExpandedNaturaCategory(null);
     setExpandedNovaVentaCategory(null);
-  };
+  }, []);
+
+  const toggleNaturaCategory = useCallback((id: string) => {
+    setExpandedNaturaCategory((prev) => (prev === id ? null : id));
+  }, []);
+
+  const toggleNovaVentaCategory = useCallback((id: string) => {
+    setExpandedNovaVentaCategory((prev) => (prev === id ? null : id));
+  }, []);
 
   return (
     <>
@@ -281,7 +295,7 @@ export default function Navbar({ categoriesNatura, categoriesNovaVenta }: Navbar
                       <CategoryDropdownContent
                         categories={categoriesNatura}
                         expandedCategoryId={expandedNaturaCategory}
-                        onToggleCategory={(id) => setExpandedNaturaCategory((prev) => prev === id ? null : id)}
+                        onToggleCategory={toggleNaturaCategory}
                         linkClassName=""
                         subLinkClassName=""
                       />
@@ -324,7 +338,7 @@ export default function Navbar({ categoriesNatura, categoriesNovaVenta }: Navbar
                       <CategoryDropdownContent
                         categories={categoriesNovaVenta}
                         expandedCategoryId={expandedNovaVentaCategory}
-                        onToggleCategory={(id) => setExpandedNovaVentaCategory((prev) => prev === id ? null : id)}
+                        onToggleCategory={toggleNovaVentaCategory}
                         linkClassName=""
                         subLinkClassName=""
                       />
@@ -371,14 +385,14 @@ export default function Navbar({ categoriesNatura, categoriesNovaVenta }: Navbar
             title="NATURA"
             categories={categoriesNatura}
             expandedCategoryId={expandedNaturaCategory}
-            onToggleCategory={(id) => setExpandedNaturaCategory((prev) => prev === id ? null : id)}
+            onToggleCategory={toggleNaturaCategory}
             onClose={closeMobileMenu}
           />
           <MobileCategoryBlock
             title="NOVAVENTA"
             categories={categoriesNovaVenta}
             expandedCategoryId={expandedNovaVentaCategory}
-            onToggleCategory={(id) => setExpandedNovaVentaCategory((prev) => prev === id ? null : id)}
+            onToggleCategory={toggleNovaVentaCategory}
             onClose={closeMobileMenu}
           />
         </div>
