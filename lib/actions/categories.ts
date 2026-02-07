@@ -10,6 +10,19 @@ function parseMenu(value: string | null): MenuType | null {
   return null
 }
 
+/** Convierte errores de Supabase en mensajes amigables para el usuario */
+function friendlyCategoryError(error: { message?: string; code?: string }): string {
+  const msg = error?.message ?? ''
+  const code = error?.code ?? ''
+  if (code === '23505' || msg.includes('categories_menu_slug_key') || msg.includes('duplicate key')) {
+    return 'Ya existe una categoría con ese nombre en este menú. Elige otro nombre.'
+  }
+  if (msg.includes('foreign key') || msg.includes('violates foreign key')) {
+    return 'No se puede eliminar o modificar: hay datos que dependen de esta categoría.'
+  }
+  return msg || 'Ha ocurrido un error. Intenta de nuevo.'
+}
+
 export async function getCategories() {
   const supabase = await createClient()
   if (!supabase) return []
@@ -77,7 +90,7 @@ export async function createCategory(formData: FormData) {
 
   if (error) {
     console.error('Error creating category:', error)
-    return { error: error.message }
+    return { error: friendlyCategoryError(error) }
   }
 
   revalidatePath('/admin/categorias')
@@ -111,7 +124,7 @@ export async function updateCategory(id: string, formData: FormData) {
 
   if (error) {
     console.error('Error updating category:', error)
-    return { error: error.message }
+    return { error: friendlyCategoryError(error) }
   }
 
   revalidatePath('/admin/categorias')
@@ -130,7 +143,7 @@ export async function deleteCategory(id: string) {
 
   if (error) {
     console.error('Error deleting category:', error)
-    return { error: error.message }
+    return { error: friendlyCategoryError(error) }
   }
 
   revalidatePath('/admin/categorias')
