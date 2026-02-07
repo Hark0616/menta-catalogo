@@ -1,14 +1,22 @@
-'use server'
-
+import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { CategoryInsert } from '@/lib/types/database'
 
 export type MenuType = 'Natura' | 'NovaVenta'
 
-function parseMenu(value: string | null): MenuType | null {
-  if (value === 'Natura' || value === 'NovaVenta') return value
-  return null
-}
+// Define Zod schema for Category creation
+const CategorySchema = z.object({
+  name: z.string().min(1, 'El nombre de la categoría es requerido.'),
+  menu: z.enum(['Natura', 'NovaVenta'], {
+    errorMap: () => ({ message: 'El menú debe ser Natura o NovaVenta.' }),
+  }),
+  parent_id: z.string().nullable().optional(),
+  order_index: z.preprocess(
+    (a) => parseInt(a as string),
+    z.number().int().min(0, 'El orden debe ser un número positivo.').optional().default(0)
+  ),
+});
 
 /** Convierte errores de Supabase en mensajes amigables para el usuario */
 function friendlyCategoryError(error: { message?: string; code?: string }): string {
@@ -67,26 +75,41 @@ export async function createCategory(formData: FormData) {
   const supabase = await createClient()
   if (!supabase) return { error: 'Supabase no configurado' }
 
-  const menu = parseMenu(formData.get('menu') as string | null)
-  if (!menu) return { error: 'Menú inválido. Usa Natura o NovaVenta.' }
+  // Extract data from FormData
+  const categoryData = {
+    name: formData.get('name'),
+    menu: formData.get('menu'),
+    parent_id: formData.get('parent_id'),
+    order_index: formData.get('order_index'),
+  };
 
-  const name = formData.get('name') as string
-  const slug = name
+  // Validate data using Zod schema
+  const parsed = CategorySchema.safeParse(categoryData);
+
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    const errorMessage = Object.values(fieldErrors).flat().join('; ');
+    console.error('Validation Error:', fieldErrors);
+    return { error: errorMessage || 'Error de validación desconocido.' };
+  }
+
+  // Generate slug after successful validation of name
+  const slug = parsed.data.name
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
+    .replace(/(^-|-$)/g, '');
 
-  const category = {
-    name,
+  const categoryToInsert: CategoryInsert = {
+    name: parsed.data.name,
     slug,
-    menu,
-    parent_id: (formData.get('parent_id') as string) || null,
-    order_index: parseInt(formData.get('order_index') as string) || 0,
-  }
+    menu: parsed.data.menu,
+    parent_id: parsed.data.parent_id,
+    order_index: parsed.data.order_index,
+  };
 
-  const { error } = await supabase.from('categories').insert(category as any)
+  const { error } = await supabase.from('categories').insert(categoryToInsert)
 
   if (error) {
     console.error('Error creating category:', error)
@@ -98,28 +121,47 @@ export async function createCategory(formData: FormData) {
   return { success: true }
 }
 
+
 export async function updateCategory(id: string, formData: FormData) {
   const supabase = await createClient()
   if (!supabase) return { error: 'Supabase no configurado' }
 
-  const name = formData.get('name') as string
-  const slug = name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
+  // Define a partial Zod schema for updating categories
+  const UpdateCategorySchema = CategorySchema.partial();
 
-  const category = {
-    name,
-    slug,
-    parent_id: formData.get('parent_id') as string || null,
-    order_index: parseInt(formData.get('order_index') as string) || 0,
+  // Extract data from FormData
+  const categoryData = {
+    name: formData.get('name'),
+    parent_id: formData.get('parent_id'),
+    order_index: formData.get('order_index'),
+    menu: formData.get('menu'), // menu can also be updated
+  };
+
+  // Validate data using Zod schema
+  const parsed = UpdateCategorySchema.safeParse(categoryData);
+
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    const errorMessage = Object.values(fieldErrors).flat().join('; ');
+    console.error('Validation Error:', fieldErrors);
+    return { error: errorMessage || 'Error de validación desconocido.' };
+  }
+
+  const categoryToUpdate: Partial<CategoryInsert> = parsed.data;
+
+  // Generate slug if name is provided and valid
+  if (categoryToUpdate.name) {
+    categoryToUpdate.slug = categoryToUpdate.name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
   }
 
   const { error } = await supabase
     .from('categories')
-    .update(category as any)
+    .update(categoryToUpdate)
     .eq('id', id)
 
   if (error) {
@@ -136,10 +178,21 @@ export async function deleteCategory(id: string) {
   const supabase = await createClient()
   if (!supabase) return { error: 'Supabase no configurado' }
 
+  // Define Zod schema for id validation (reuse if already defined, or define locally)
+  const IdSchema = z.string().uuid('El ID de la categoría no es válido.');
+
+  const parsedId = IdSchema.safeParse(id);
+
+  if (!parsedId.success) {
+    const errorMessage = parsedId.error.flatten().formErrors.join('; ');
+    console.error('Validation Error:', errorMessage);
+    return { error: errorMessage || 'ID de categoría no válido.' };
+  }
+
   const { error } = await supabase
     .from('categories')
     .delete()
-    .eq('id', id)
+    .eq('id', parsedId.data)
 
   if (error) {
     console.error('Error deleting category:', error)

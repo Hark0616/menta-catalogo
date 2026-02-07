@@ -2,7 +2,8 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { deleteProduct, toggleProductActive } from '@/lib/actions/products'
 import type { Product } from '@/lib/types/database'
 
@@ -16,17 +17,25 @@ interface ProductTableProps {
 
 export default function ProductTable({ products }: ProductTableProps) {
   const [deleting, setDeleting] = useState<string | null>(null)
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
 
   async function handleDelete(id: string, name: string) {
     if (!confirm(`¿Estás segura de eliminar "${name}"?`)) return
     
     setDeleting(id)
-    await deleteProduct(id)
-    setDeleting(null)
+    startTransition(async () => {
+      await deleteProduct(id)
+      router.refresh()
+      setDeleting(null)
+    })
   }
 
   async function handleToggle(id: string, currentState: boolean) {
-    await toggleProductActive(id, !currentState)
+    startTransition(async () => {
+      await toggleProductActive(id, !currentState)
+      router.refresh()
+    })
   }
 
   if (products.length === 0) {
@@ -122,13 +131,14 @@ export default function ProductTable({ products }: ProductTableProps) {
               <td className="px-4 py-4">
                 <button
                   onClick={() => handleToggle(product.id, product.is_active)}
+                  disabled={isPending}
                   className={`px-2 py-1 rounded text-xs font-medium transition-colors
                     ${product.is_active 
                       ? 'bg-green-100 text-green-700 hover:bg-green-200' 
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                 >
-                  {product.is_active ? 'Activo' : 'Inactivo'}
+                  {isPending ? 'Cargando...' : product.is_active ? 'Activo' : 'Inactivo'}
                 </button>
               </td>
               <td className="px-4 py-4">
@@ -136,9 +146,9 @@ export default function ProductTable({ products }: ProductTableProps) {
                   <Link
                     href={`/admin/productos/${product.id}`}
                     className="p-2 text-jungle-muted hover:text-jungle-deep hover:bg-mint rounded transition-colors"
-                    title="Editar"
+                    aria-label="Editar producto"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" 
                       />
@@ -146,12 +156,12 @@ export default function ProductTable({ products }: ProductTableProps) {
                   </Link>
                   <button
                     onClick={() => handleDelete(product.id, product.name)}
-                    disabled={deleting === product.id}
+                    disabled={isPending || deleting === product.id}
                     className="p-2 text-jungle-muted hover:text-red-600 hover:bg-red-50 rounded transition-colors
                       disabled:opacity-50"
-                    title="Eliminar"
+                    aria-label="Eliminar producto"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" 
                       />

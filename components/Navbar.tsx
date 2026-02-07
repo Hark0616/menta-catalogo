@@ -47,6 +47,7 @@ const CategoryDropdownContent = memo(function CategoryDropdownContent({
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
                   </svg>
@@ -128,14 +129,14 @@ const MobileCategoryBlock = memo(function MobileCategoryBlock({
                       justify-between focus:outline-none"
                   >
                     <span>{category.name}</span>
-                    <svg
-                      className={`w-4 h-4 text-jungle-muted transition-transform duration-300 
-                        ${isExpanded ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                                      <svg
+                                        className={`w-4 h-4 text-jungle-muted transition-transform duration-300 
+                                          ${isExpanded ? 'rotate-180' : ''}`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                      >                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
                 ) : (
@@ -249,11 +250,11 @@ export default function Navbar({ categoriesNatura, categoriesNovaVenta }: Navbar
             >
               <div className="w-6 h-4 flex flex-col justify-between">
                 <span className={`block h-px w-6 bg-jungle-deep transition-all duration-300 
-                  ${isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`} />
+                  ${isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`} aria-hidden="true" />
                 <span className={`block h-px bg-jungle-deep transition-all duration-300 
-                  ${isMobileMenuOpen ? 'opacity-0 w-6' : 'w-4 ml-auto'}`} />
+                  ${isMobileMenuOpen ? 'opacity-0 w-6' : 'w-4 ml-auto'}`} aria-hidden="true" />
                 <span className={`block h-px w-6 bg-jungle-deep transition-all duration-300 
-                  ${isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`} />
+                  ${isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`} aria-hidden="true" />
               </div>
             </button>
 
@@ -281,6 +282,7 @@ export default function Navbar({ categoriesNatura, categoriesNovaVenta }: Navbar
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -324,6 +326,7 @@ export default function Navbar({ categoriesNatura, categoriesNovaVenta }: Navbar
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -374,7 +377,7 @@ export default function Navbar({ categoriesNatura, categoriesNovaVenta }: Navbar
             className="p-2 hover:bg-white/30 rounded-sm transition-colors duration-200"
             aria-label="Cerrar menú"
           >
-            <svg className="w-5 h-5 text-jungle-deep" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-jungle-deep" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
