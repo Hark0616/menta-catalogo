@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getCategoriesWithParent, type MenuType } from '@/lib/actions/categories'
+import { getCategoriesWithParent, createCategory, type MenuType } from '@/lib/actions/categories'
 import CategoryForm from '@/components/admin/CategoryForm'
 
 type SearchParams = { menu?: string }
@@ -47,7 +47,7 @@ export default async function CategoriasPage({
         </Link>
       </div>
 
-      <CategoryForm categories={categories} menu={menu} />
+      <CategoryForm categories={categories} menu={menu} createCategoryAction={createCategory} />
     </div>
   )
 }

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react'
 import { useFormStatus } from 'react-dom'
-import { createCategory, updateCategory, deleteCategory, type MenuType } from '@/lib/actions/categories'
+import { updateCategory, deleteCategory, type MenuType } from '@/lib/actions/categories'
 import type { Category } from '@/lib/types/database'
 import CategoryListItem from './CategoryListItem'
 
@@ -13,6 +13,7 @@ interface CategoryWithParent extends Category {
 interface CategoryFormProps {
   categories: CategoryWithParent[]
   menu: MenuType
+  createCategoryAction: (formData: FormData) => Promise<any>
 }
 
 function SubmitButton() {
@@ -31,7 +32,7 @@ function SubmitButton() {
   )
 }
 
-export default function CategoryForm({ categories, menu }: CategoryFormProps) {
+export default function CategoryForm({ categories, menu, createCategoryAction }: CategoryFormProps) {
   const [editing, setEditing] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -58,7 +59,7 @@ export default function CategoryForm({ categories, menu }: CategoryFormProps) {
 
   async function handleCreate(formData: FormData) {
     setError(null)
-    const result = await createCategory(formData)
+    const result = await createCategoryAction(formData)
     if (result.error) {
       setError(result.error)
     }
