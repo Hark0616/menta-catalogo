@@ -9,7 +9,7 @@ export type MenuType = 'Natura' | 'NovaVenta'
 const CategorySchema = z.object({
   name: z.string().min(1, 'El nombre de la categoría es requerido.'),
   menu: z.enum(['Natura', 'NovaVenta'], {
-    errorMap: () => ({ message: 'El menú debe ser Natura o NovaVenta.' }),
+    message: 'El menú debe ser Natura o NovaVenta.',
   }),
   parent_id: z.string().nullable().optional(),
   order_index: z.preprocess(
