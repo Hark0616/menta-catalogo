@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react'
 import { useFormStatus } from 'react-dom'
-import { updateCategory, deleteCategory, type MenuType } from '@/lib/actions/categories'
+import { type MenuType } from '@/lib/actions/categories'
 import type { Category } from '@/lib/types/database'
 import CategoryListItem from './CategoryListItem'
 
@@ -14,6 +14,8 @@ interface CategoryFormProps {
   categories: CategoryWithParent[]
   menu: MenuType
   createCategoryAction: (formData: FormData) => Promise<any>
+  updateCategoryAction: (id: string, formData: FormData) => Promise<any>
+  deleteCategoryAction: (id: string) => Promise<any>
 }
 
 function SubmitButton() {
@@ -32,7 +34,13 @@ function SubmitButton() {
   )
 }
 
-export default function CategoryForm({ categories, menu, createCategoryAction }: CategoryFormProps) {
+export default function CategoryForm({ 
+  categories, 
+  menu, 
+  createCategoryAction,
+  updateCategoryAction,
+  deleteCategoryAction
+}: CategoryFormProps) {
   const [editing, setEditing] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -68,19 +76,19 @@ export default function CategoryForm({ categories, menu, createCategoryAction }:
   // Wrap handlers in useCallback
   const handleUpdate = useCallback(async (id: string, formData: FormData) => {
     setError(null)
-    const result = await updateCategory(id, formData)
+    const result = await updateCategoryAction(id, formData)
     if (result.error) {
       setError(result.error)
     } else {
       setEditing(null)
     }
-  }, [])
+  }, [updateCategoryAction])
 
   const performDelete = useCallback(async (id: string) => {
-    const result = await deleteCategory(id)
+    const result = await deleteCategoryAction(id)
     if (result?.error) setError(result.error)
     setDeleting(null)
-  }, [])
+  }, [deleteCategoryAction])
 
   const onDeleteClick = useCallback((id: string, name: string) => {
     // if (!confirm(`¿Estás segura de eliminar "${name}"? Las subcategorías también se eliminarán.`)) return
