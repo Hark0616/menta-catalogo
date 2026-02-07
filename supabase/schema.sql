@@ -1,16 +1,22 @@
 -- =============================================
--- SCHEMA DE BASE DE DATOS MENTA
--- Ejecutar en Supabase SQL Editor
+-- SCHEMA DE BASE DE DATOS MENTA (referencia)
+-- =============================================
+-- Este archivo describe el esquema completo "desde cero".
+-- Si tu proyecto YA tiene tablas creadas, NO ejecutes este archivo entero.
+-- Usa las migraciones en /supabase/migrations/ para aplicar cambios
+-- (por ejemplo 20260206_add_menu_to_categories.sql para la columna menu).
 -- =============================================
 
--- Tabla de categorías
+-- Tabla de categorías (menu: Natura | NovaVenta para dos menús desplegables)
 CREATE TABLE IF NOT EXISTS categories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL,
-  slug VARCHAR(100) UNIQUE NOT NULL,
+  slug VARCHAR(100) NOT NULL,
+  menu VARCHAR(20) NOT NULL DEFAULT 'Natura' CHECK (menu IN ('Natura', 'NovaVenta')),
   parent_id UUID REFERENCES categories(id) ON DELETE SET NULL,
   order_index INTEGER DEFAULT 0,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(menu, slug)
 );
 
 -- Tabla de productos
@@ -34,6 +40,7 @@ CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand);
 CREATE INDEX IF NOT EXISTS idx_products_active ON products(is_active);
 CREATE INDEX IF NOT EXISTS idx_categories_parent ON categories(parent_id);
 CREATE INDEX IF NOT EXISTS idx_categories_slug ON categories(slug);
+CREATE INDEX IF NOT EXISTS idx_categories_menu ON categories(menu);
 
 -- Trigger para actualizar updated_at automáticamente
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -53,29 +60,29 @@ CREATE TRIGGER update_products_updated_at
 -- DATOS INICIALES
 -- =============================================
 
--- Insertar categorías de ejemplo
-INSERT INTO categories (name, slug, order_index) VALUES
-  ('Perfumes', 'perfumes', 1),
-  ('Cuidados diarios', 'cuidados-diarios', 2),
-  ('Cabello', 'cabello', 3),
-  ('Rostro', 'rostro', 4),
-  ('Maquillaje', 'maquillaje', 5),
-  ('Hogar', 'hogar', 6),
-  ('Cocina', 'cocina', 7)
-ON CONFLICT (slug) DO NOTHING;
+-- Insertar categorías de ejemplo (menú Natura)
+INSERT INTO categories (name, slug, menu, order_index) VALUES
+  ('Perfumes', 'perfumes', 'Natura', 1),
+  ('Cuidados diarios', 'cuidados-diarios', 'Natura', 2),
+  ('Cabello', 'cabello', 'Natura', 3),
+  ('Rostro', 'rostro', 'Natura', 4),
+  ('Maquillaje', 'maquillaje', 'Natura', 5),
+  ('Hogar', 'hogar', 'Natura', 6),
+  ('Cocina', 'cocina', 'Natura', 7)
+ON CONFLICT (menu, slug) DO NOTHING;
 
--- Insertar subcategorías de Perfumes
-INSERT INTO categories (name, slug, parent_id, order_index)
-SELECT 'Masculino', 'perfumes-masculino', id, 1 FROM categories WHERE slug = 'perfumes'
-ON CONFLICT (slug) DO NOTHING;
+-- Insertar subcategorías de Perfumes (Natura)
+INSERT INTO categories (name, slug, menu, parent_id, order_index)
+SELECT 'Masculino', 'perfumes-masculino', 'Natura', id, 1 FROM categories WHERE slug = 'perfumes' AND menu = 'Natura'
+ON CONFLICT (menu, slug) DO NOTHING;
 
-INSERT INTO categories (name, slug, parent_id, order_index)
-SELECT 'Femenino', 'perfumes-femenino', id, 2 FROM categories WHERE slug = 'perfumes'
-ON CONFLICT (slug) DO NOTHING;
+INSERT INTO categories (name, slug, menu, parent_id, order_index)
+SELECT 'Femenino', 'perfumes-femenino', 'Natura', id, 2 FROM categories WHERE slug = 'perfumes' AND menu = 'Natura'
+ON CONFLICT (menu, slug) DO NOTHING;
 
-INSERT INTO categories (name, slug, parent_id, order_index)
-SELECT 'Niños', 'perfumes-ninos', id, 3 FROM categories WHERE slug = 'perfumes'
-ON CONFLICT (slug) DO NOTHING;
+INSERT INTO categories (name, slug, menu, parent_id, order_index)
+SELECT 'Niños', 'perfumes-ninos', 'Natura', id, 3 FROM categories WHERE slug = 'perfumes' AND menu = 'Natura'
+ON CONFLICT (menu, slug) DO NOTHING;
 
 -- =============================================
 -- POLÍTICAS DE SEGURIDAD (RLS)

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useFormStatus } from 'react-dom'
-import { createCategory, updateCategory, deleteCategory } from '@/lib/actions/categories'
+import { createCategory, updateCategory, deleteCategory, type MenuType } from '@/lib/actions/categories'
 import type { Category } from '@/lib/types/database'
 
 interface CategoryWithParent extends Category {
@@ -11,6 +11,7 @@ interface CategoryWithParent extends Category {
 
 interface CategoryFormProps {
   categories: CategoryWithParent[]
+  menu: MenuType
 }
 
 function SubmitButton() {
@@ -29,7 +30,7 @@ function SubmitButton() {
   )
 }
 
-export default function CategoryForm({ categories }: CategoryFormProps) {
+export default function CategoryForm({ categories, menu }: CategoryFormProps) {
   const [editing, setEditing] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -76,10 +77,13 @@ export default function CategoryForm({ categories }: CategoryFormProps) {
         </div>
       )}
 
-      {/* Formulario para nueva categoría */}
+      {/* Formulario para nueva categoría (menú ya filtrado por la página) */}
       <div className="bg-white border border-mint-border rounded-sm p-4">
-        <h3 className="font-heading text-lg text-jungle-deep mb-4">Nueva Categoría</h3>
+        <h3 className="font-heading text-lg text-jungle-deep mb-4">
+          Nueva Categoría — {menu}
+        </h3>
         <form action={handleCreate} className="flex flex-wrap gap-4 items-end">
+          <input type="hidden" name="menu" value={menu} />
           <div className="flex-1 min-w-[200px]">
             <label className="block text-jungle-muted text-xs tracking-wide uppercase mb-2">
               Nombre

@@ -3,34 +3,44 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 
+export type MenuType = 'Natura' | 'NovaVenta'
+
+function parseMenu(value: string | null): MenuType | null {
+  if (value === 'Natura' || value === 'NovaVenta') return value
+  return null
+}
+
 export async function getCategories() {
   const supabase = await createClient()
   if (!supabase) return []
-  
   const { data, error } = await supabase
     .from('categories')
     .select('*')
     .order('order_index', { ascending: true })
-
   if (error) {
     console.error('Error fetching categories:', error)
     return []
   }
-
   return data
 }
 
-export async function getCategoriesWithParent() {
+export async function getCategoriesWithParent(menu?: MenuType) {
   const supabase = await createClient()
   if (!supabase) return []
-  
-  const { data, error } = await supabase
+
+  let query = supabase
     .from('categories')
     .select(`
       *,
       parent:categories!parent_id(id, name, slug)
     `)
     .order('order_index', { ascending: true })
+
+  if (menu) {
+    query = query.eq('menu', menu)
+  }
+
+  const { data, error } = await query
 
   if (error) {
     console.error('Error fetching categories:', error)
@@ -44,6 +54,9 @@ export async function createCategory(formData: FormData) {
   const supabase = await createClient()
   if (!supabase) return { error: 'Supabase no configurado' }
 
+  const menu = parseMenu(formData.get('menu') as string | null)
+  if (!menu) return { error: 'Menú inválido. Usa Natura o NovaVenta.' }
+
   const name = formData.get('name') as string
   const slug = name
     .toLowerCase()
@@ -55,7 +68,8 @@ export async function createCategory(formData: FormData) {
   const category = {
     name,
     slug,
-    parent_id: formData.get('parent_id') as string || null,
+    menu,
+    parent_id: (formData.get('parent_id') as string) || null,
     order_index: parseInt(formData.get('order_index') as string) || 0,
   }
 

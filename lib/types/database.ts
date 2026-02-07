@@ -44,6 +44,7 @@ export interface Database {
           id: string
           name: string
           slug: string
+          menu: 'Natura' | 'NovaVenta'
           parent_id: string | null
           order_index: number
           created_at: string
@@ -52,6 +53,7 @@ export interface Database {
           id?: string
           name: string
           slug: string
+          menu: 'Natura' | 'NovaVenta'
           parent_id?: string | null
           order_index?: number
           created_at?: string
@@ -60,6 +62,7 @@ export interface Database {
           id?: string
           name?: string
           slug?: string
+          menu?: 'Natura' | 'NovaVenta'
           parent_id?: string | null
           order_index?: number
           created_at?: string

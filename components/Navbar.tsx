@@ -5,18 +5,183 @@ import Link from 'next/link';
 import type { CategoryWithSubcategories } from '@/lib/data';
 
 interface NavbarProps {
-  categories: CategoryWithSubcategories[];
+  categoriesNatura: CategoryWithSubcategories[];
+  categoriesNovaVenta: CategoryWithSubcategories[];
 }
 
-export default function Navbar({ categories }: NavbarProps) {
+function CategoryDropdownContent({
+  categories,
+  expandedCategoryId,
+  onToggleCategory,
+  linkClassName,
+  subLinkClassName,
+}: {
+  categories: CategoryWithSubcategories[];
+  expandedCategoryId: string | null;
+  onToggleCategory: (id: string) => void;
+  linkClassName: string;
+  subLinkClassName: string;
+}) {
+  return (
+    <div className="py-3">
+      {categories.map((category, index) => {
+        const isExpanded = expandedCategoryId === category.id;
+        const hasSubcategories = category.subcategories.length > 0;
+
+        return (
+          <div key={category.id}>
+            <div className="px-5 py-2.5 hover:bg-mint/30 transition-colors duration-200">
+              {hasSubcategories ? (
+                <button
+                  onClick={() => onToggleCategory(category.id)}
+                  className="w-full text-left text-jungle text-sm flex items-center 
+                    justify-between hover:text-jungle-deep transition-colors"
+                >
+                  <span>{category.name}</span>
+                  <svg
+                    className={`w-3 h-3 transition-transform duration-300 
+                      ${isExpanded ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              ) : (
+                <a
+                  href={`#productos-${category.slug}`}
+                  className={`block text-jungle text-sm hover:text-jungle-deep transition-colors ${linkClassName}`}
+                >
+                  {category.name}
+                </a>
+              )}
+
+              <div className={`grid transition-all duration-300 ease-in-out 
+                ${isExpanded ? 'grid-rows-[1fr] opacity-100 mt-2' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
+                <div className="overflow-hidden">
+                  <div className="pl-3 space-y-1 border-l border-mint-border/50">
+                    {category.subcategories.map((subcategory) => (
+                      <a
+                        key={subcategory.id}
+                        href={`#productos-${category.slug}-${subcategory.slug}`}
+                        className={`block py-1.5 text-jungle-muted text-xs 
+                          hover:text-jungle-deep transition-colors ${subLinkClassName}`}
+                      >
+                        {subcategory.name}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {index < categories.length - 1 && (
+              <div className="h-px bg-mint-border/30 mx-5" />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function MobileCategoryBlock({
+  title,
+  categories,
+  expandedCategoryId,
+  onToggleCategory,
+  onClose,
+}: {
+  title: string;
+  categories: CategoryWithSubcategories[];
+  expandedCategoryId: string | null;
+  onToggleCategory: (id: string) => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="mb-6">
+      <div className="px-6 mb-3">
+        <span className="text-[10px] tracking-[0.2em] uppercase text-jungle-muted">
+          {title}
+        </span>
+      </div>
+      {categories.length === 0 ? (
+        <p className="px-6 text-jungle-muted text-sm">Sin categorías</p>
+      ) : (
+        categories.map((category, index) => {
+          const isExpanded = expandedCategoryId === category.id;
+          const hasSubcategories = category.subcategories.length > 0;
+
+          return (
+            <div key={category.id}>
+              <div className="px-6 py-3 hover:bg-white/30 transition-colors duration-200">
+                {hasSubcategories ? (
+                  <button
+                    onClick={() => onToggleCategory(category.id)}
+                    className="w-full text-left text-jungle text-sm flex items-center 
+                      justify-between focus:outline-none"
+                  >
+                    <span>{category.name}</span>
+                    <svg
+                      className={`w-4 h-4 text-jungle-muted transition-transform duration-300 
+                        ${isExpanded ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                ) : (
+                  <a
+                    href={`#productos-${category.slug}`}
+                    onClick={onClose}
+                    className="block text-jungle text-sm hover:text-jungle-deep transition-colors"
+                  >
+                    {category.name}
+                  </a>
+                )}
+
+                <div className={`grid transition-all duration-300 ease-in-out 
+                  ${isExpanded ? 'grid-rows-[1fr] opacity-100 mt-3' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
+                  <div className="overflow-hidden">
+                    <div className="pl-4 space-y-2 border-l border-gold/30">
+                      {category.subcategories.map((subcategory) => (
+                        <a
+                          key={subcategory.id}
+                          href={`#productos-${category.slug}-${subcategory.slug}`}
+                          onClick={onClose}
+                          className="block py-1.5 text-jungle-muted text-sm 
+                            hover:text-jungle-deep transition-colors"
+                        >
+                          {subcategory.name}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {index < categories.length - 1 && (
+                <div className="h-px bg-mint-border/30 mx-6" />
+              )}
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+}
+
+export default function Navbar({ categoriesNatura, categoriesNovaVenta }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isProductsOpen, setIsProductsOpen] = useState(false);
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [isNaturaOpen, setIsNaturaOpen] = useState(false);
+  const [isNovaVentaOpen, setIsNovaVentaOpen] = useState(false);
+  const [expandedNaturaCategory, setExpandedNaturaCategory] = useState<string | null>(null);
+  const [expandedNovaVentaCategory, setExpandedNovaVentaCategory] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     let ticking = false;
-    
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
@@ -26,7 +191,6 @@ export default function Navbar({ categories }: NavbarProps) {
         ticking = true;
       }
     };
-    
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -42,13 +206,10 @@ export default function Navbar({ categories }: NavbarProps) {
     };
   }, [isMobileMenuOpen]);
 
-  const toggleCategory = (categoryId: string) => {
-    setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
-  };
-
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
-    setExpandedCategory(null);
+    setExpandedNaturaCategory(null);
+    setExpandedNovaVentaCategory(null);
   };
 
   return (
@@ -60,8 +221,6 @@ export default function Navbar({ categories }: NavbarProps) {
         
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-24">
-            
-            {/* Logo tipográfico - SIN EMOJI */}
             <Link href="/" className="group">
               <span className="font-heading text-xl tracking-[0.12em] text-jungle-deep 
                 transition-colors duration-300 group-hover:text-jungle">
@@ -69,7 +228,6 @@ export default function Navbar({ categories }: NavbarProps) {
               </span>
             </Link>
 
-            {/* Botón hamburguesa para móvil */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden p-2 focus:outline-none"
@@ -85,23 +243,27 @@ export default function Navbar({ categories }: NavbarProps) {
               </div>
             </button>
 
-            {/* Menú desktop */}
+            {/* Menú desktop: NATURA y NOVAVENTA */}
             <div className="hidden md:block">
-              <div className="flex items-center gap-12">
+              <div className="flex items-center gap-8">
+                {/* Dropdown NATURA */}
                 <div
                   className="relative"
-                  onMouseEnter={() => setIsProductsOpen(true)}
+                  onMouseEnter={() => {
+                    setIsNaturaOpen(true);
+                    setIsNovaVentaOpen(false);
+                  }}
                   onMouseLeave={() => {
-                    setIsProductsOpen(false);
-                    setExpandedCategory(null);
+                    setIsNaturaOpen(false);
+                    setExpandedNaturaCategory(null);
                   }}
                 >
                   <button className="text-jungle-muted text-sm tracking-[0.1em] uppercase
                     hover:text-jungle-deep transition-colors duration-300 flex items-center gap-2">
-                    Catálogo
+                    Natura
                     <svg
                       className={`w-3 h-3 transition-transform duration-300 
-                        ${isProductsOpen ? 'rotate-180' : ''}`}
+                        ${isNaturaOpen ? 'rotate-180' : ''}`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -110,73 +272,62 @@ export default function Navbar({ categories }: NavbarProps) {
                     </svg>
                   </button>
 
-                  {/* Dropdown */}
-                  <div className={`absolute top-full right-0 pt-4 transition-all duration-300
-                    ${isProductsOpen 
+                  <div className={`absolute top-full left-0 pt-4 transition-all duration-300
+                    ${isNaturaOpen 
                       ? 'opacity-100 translate-y-0 pointer-events-auto' 
                       : 'opacity-0 -translate-y-2 pointer-events-none'}`}>
                     <div className="bg-white/95 backdrop-blur-md rounded-sm shadow-lg 
                       border border-mint-border/30 w-56 overflow-hidden">
-                      <div className="py-3">
-                        {categories.map((category, index) => {
-                          const isExpanded = expandedCategory === category.id;
-                          const hasSubcategories = category.subcategories.length > 0;
+                      <CategoryDropdownContent
+                        categories={categoriesNatura}
+                        expandedCategoryId={expandedNaturaCategory}
+                        onToggleCategory={(id) => setExpandedNaturaCategory((prev) => prev === id ? null : id)}
+                        linkClassName=""
+                        subLinkClassName=""
+                      />
+                    </div>
+                  </div>
+                </div>
 
-                          return (
-                            <div key={category.id}>
-                              <div className="px-5 py-2.5 hover:bg-mint/30 transition-colors duration-200">
-                                {hasSubcategories ? (
-                                  <button
-                                    onClick={() => toggleCategory(category.id)}
-                                    className="w-full text-left text-jungle text-sm flex items-center 
-                                      justify-between hover:text-jungle-deep transition-colors"
-                                  >
-                                    <span>{category.name}</span>
-                                    <svg
-                                      className={`w-3 h-3 transition-transform duration-300 
-                                        ${isExpanded ? 'rotate-180' : ''}`}
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                  </button>
-                                ) : (
-                                  <a
-                                    href={`#productos-${category.slug}`}
-                                    className="block text-jungle text-sm hover:text-jungle-deep transition-colors"
-                                  >
-                                    {category.name}
-                                  </a>
-                                )}
+                {/* Dropdown NOVAVENTA */}
+                <div
+                  className="relative"
+                  onMouseEnter={() => {
+                    setIsNovaVentaOpen(true);
+                    setIsNaturaOpen(false);
+                  }}
+                  onMouseLeave={() => {
+                    setIsNovaVentaOpen(false);
+                    setExpandedNovaVentaCategory(null);
+                  }}
+                >
+                  <button className="text-jungle-muted text-sm tracking-[0.1em] uppercase
+                    hover:text-jungle-deep transition-colors duration-300 flex items-center gap-2">
+                    NovaVenta
+                    <svg
+                      className={`w-3 h-3 transition-transform duration-300 
+                        ${isNovaVentaOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
 
-                                {/* Subcategorías */}
-                                <div className={`grid transition-all duration-300 ease-in-out 
-                                  ${isExpanded ? 'grid-rows-[1fr] opacity-100 mt-2' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
-                                  <div className="overflow-hidden">
-                                    <div className="pl-3 space-y-1 border-l border-mint-border/50">
-                                      {category.subcategories.map((subcategory) => (
-                                        <a
-                                          key={subcategory.id}
-                                          href={`#productos-${category.slug}-${subcategory.slug}`}
-                                          className="block py-1.5 text-jungle-muted text-xs 
-                                            hover:text-jungle-deep transition-colors"
-                                        >
-                                          {subcategory.name}
-                                        </a>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              {index < categories.length - 1 && (
-                                <div className="h-px bg-mint-border/30 mx-5" />
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
+                  <div className={`absolute top-full left-0 pt-4 transition-all duration-300
+                    ${isNovaVentaOpen 
+                      ? 'opacity-100 translate-y-0 pointer-events-auto' 
+                      : 'opacity-0 -translate-y-2 pointer-events-none'}`}>
+                    <div className="bg-white/95 backdrop-blur-md rounded-sm shadow-lg 
+                      border border-mint-border/30 w-56 overflow-hidden">
+                      <CategoryDropdownContent
+                        categories={categoriesNovaVenta}
+                        expandedCategoryId={expandedNovaVentaCategory}
+                        onToggleCategory={(id) => setExpandedNovaVentaCategory((prev) => prev === id ? null : id)}
+                        linkClassName=""
+                        subLinkClassName=""
+                      />
                     </div>
                   </div>
                 </div>
@@ -200,7 +351,6 @@ export default function Navbar({ categories }: NavbarProps) {
           transform transition-transform duration-300 ease-out shadow-2xl 
           ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
-        {/* Header del menú móvil */}
         <div className="flex items-center justify-between p-6 border-b border-mint-border/50">
           <span className="font-heading text-lg tracking-[0.1em] text-jungle-deep">
             MENTA<span className="text-gold">.</span>
@@ -216,74 +366,21 @@ export default function Navbar({ categories }: NavbarProps) {
           </button>
         </div>
 
-        {/* Contenido del menú móvil */}
         <div className="overflow-y-auto h-[calc(100%-80px)] py-6">
-          <div className="px-6 mb-4">
-            <span className="text-[10px] tracking-[0.2em] uppercase text-jungle-muted">
-              Catálogo
-            </span>
-          </div>
-          
-          {categories.map((category, index) => {
-            const isExpanded = expandedCategory === category.id;
-            const hasSubcategories = category.subcategories.length > 0;
-
-            return (
-              <div key={category.id}>
-                <div className="px-6 py-3 hover:bg-white/30 transition-colors duration-200">
-                  {hasSubcategories ? (
-                    <button
-                      onClick={() => toggleCategory(category.id)}
-                      className="w-full text-left text-jungle text-sm flex items-center 
-                        justify-between focus:outline-none"
-                    >
-                      <span>{category.name}</span>
-                      <svg
-                        className={`w-4 h-4 text-jungle-muted transition-transform duration-300 
-                          ${isExpanded ? 'rotate-180' : ''}`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                  ) : (
-                    <a
-                      href={`#productos-${category.slug}`}
-                      onClick={closeMobileMenu}
-                      className="block text-jungle text-sm hover:text-jungle-deep transition-colors"
-                    >
-                      {category.name}
-                    </a>
-                  )}
-
-                  {/* Subcategorías expandibles */}
-                  <div className={`grid transition-all duration-300 ease-in-out 
-                    ${isExpanded ? 'grid-rows-[1fr] opacity-100 mt-3' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
-                    <div className="overflow-hidden">
-                      <div className="pl-4 space-y-2 border-l border-gold/30">
-                        {category.subcategories.map((subcategory) => (
-                          <a
-                            key={subcategory.id}
-                            href={`#productos-${category.slug}-${subcategory.slug}`}
-                            onClick={closeMobileMenu}
-                            className="block py-1.5 text-jungle-muted text-sm 
-                              hover:text-jungle-deep transition-colors"
-                          >
-                            {subcategory.name}
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {index < categories.length - 1 && (
-                  <div className="h-px bg-mint-border/30 mx-6" />
-                )}
-              </div>
-            );
-          })}
+          <MobileCategoryBlock
+            title="NATURA"
+            categories={categoriesNatura}
+            expandedCategoryId={expandedNaturaCategory}
+            onToggleCategory={(id) => setExpandedNaturaCategory((prev) => prev === id ? null : id)}
+            onClose={closeMobileMenu}
+          />
+          <MobileCategoryBlock
+            title="NOVAVENTA"
+            categories={categoriesNovaVenta}
+            expandedCategoryId={expandedNovaVentaCategory}
+            onToggleCategory={(id) => setExpandedNovaVentaCategory((prev) => prev === id ? null : id)}
+            onClose={closeMobileMenu}
+          />
         </div>
       </div>
     </>

@@ -43,27 +43,36 @@ export async function getActiveProducts(): Promise<ProductWithCategory[]> {
   return data as ProductWithCategory[]
 }
 
+export type MenuType = 'Natura' | 'NovaVenta'
+
 export async function getPublicCategories(): Promise<Category[]> {
   const supabase = await createClient()
-  
-  if (!supabase) {
-    return getFallbackCategories()
-  }
-
+  if (!supabase) return getFallbackCategoriesForMenu('Natura')
   const { data, error } = await supabase
     .from('categories')
     .select('*')
     .order('order_index', { ascending: true })
-
   if (error) {
     console.error('Error fetching categories:', error)
-    return getFallbackCategories()
+    return getFallbackCategoriesForMenu('Natura')
   }
+  if (!data || data.length === 0) return getFallbackCategoriesForMenu('Natura')
+  return data
+}
 
-  if (!data || data.length === 0) {
-    return getFallbackCategories()
+export async function getPublicCategoriesByMenu(menu: MenuType): Promise<Category[]> {
+  const supabase = await createClient()
+  if (!supabase) return getFallbackCategoriesForMenu(menu)
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('menu', menu)
+    .order('order_index', { ascending: true })
+  if (error) {
+    console.error('Error fetching categories by menu:', error)
+    return getFallbackCategoriesForMenu(menu)
   }
-
+  if (!data || data.length === 0) return getFallbackCategoriesForMenu(menu)
   return data
 }
 
@@ -195,15 +204,19 @@ function getFallbackProducts(): ProductWithCategory[] {
   ]
 }
 
-function getFallbackCategories(): Category[] {
-  return [
-    { id: '1', name: 'Perfumes', slug: 'perfumes', parent_id: null, order_index: 1, created_at: new Date().toISOString() },
-    { id: '2', name: 'Cuidados diarios', slug: 'cuidados-diarios', parent_id: null, order_index: 2, created_at: new Date().toISOString() },
-    { id: '3', name: 'Cabello', slug: 'cabello', parent_id: null, order_index: 3, created_at: new Date().toISOString() },
-    { id: '4', name: 'Rostro', slug: 'rostro', parent_id: null, order_index: 4, created_at: new Date().toISOString() },
-    { id: '5', name: 'Maquillaje', slug: 'maquillaje', parent_id: null, order_index: 5, created_at: new Date().toISOString() },
-    { id: '6', name: 'Hogar', slug: 'hogar', parent_id: null, order_index: 6, created_at: new Date().toISOString() },
-    { id: '7', name: 'Cocina', slug: 'cocina', parent_id: null, order_index: 7, created_at: new Date().toISOString() },
-  ]
+function getFallbackCategoriesForMenu(menu: MenuType): Category[] {
+  const created = new Date().toISOString()
+  if (menu === 'Natura') {
+    return [
+      { id: '1', name: 'Perfumes', slug: 'perfumes', menu: 'Natura', parent_id: null, order_index: 1, created_at: created },
+      { id: '2', name: 'Cuidados diarios', slug: 'cuidados-diarios', menu: 'Natura', parent_id: null, order_index: 2, created_at: created },
+      { id: '3', name: 'Cabello', slug: 'cabello', menu: 'Natura', parent_id: null, order_index: 3, created_at: created },
+      { id: '4', name: 'Rostro', slug: 'rostro', menu: 'Natura', parent_id: null, order_index: 4, created_at: created },
+      { id: '5', name: 'Maquillaje', slug: 'maquillaje', menu: 'Natura', parent_id: null, order_index: 5, created_at: created },
+      { id: '6', name: 'Hogar', slug: 'hogar', menu: 'Natura', parent_id: null, order_index: 6, created_at: created },
+      { id: '7', name: 'Cocina', slug: 'cocina', menu: 'Natura', parent_id: null, order_index: 7, created_at: created },
+    ]
+  }
+  return []
 }
 
