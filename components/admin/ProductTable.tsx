@@ -4,7 +4,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { deleteProduct, toggleProductActive } from '@/lib/actions/products'
 import type { Product } from '@/lib/types/database'
 
 interface ProductWithCategory extends Product {
@@ -13,9 +12,15 @@ interface ProductWithCategory extends Product {
 
 interface ProductTableProps {
   products: ProductWithCategory[]
+  deleteProductAction: (id: string) => Promise<any>
+  toggleProductActiveAction: (id: string, isActive: boolean) => Promise<any>
 }
 
-export default function ProductTable({ products }: ProductTableProps) {
+export default function ProductTable({ 
+  products,
+  deleteProductAction,
+  toggleProductActiveAction
+}: ProductTableProps) {
   const [deleting, setDeleting] = useState<string | null>(null)
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -25,7 +30,7 @@ export default function ProductTable({ products }: ProductTableProps) {
     
     setDeleting(id)
     startTransition(async () => {
-      await deleteProduct(id)
+      await deleteProductAction(id)
       router.refresh()
       setDeleting(null)
     })
@@ -33,7 +38,7 @@ export default function ProductTable({ products }: ProductTableProps) {
 
   async function handleToggle(id: string, currentState: boolean) {
     startTransition(async () => {
-      await toggleProductActive(id, !currentState)
+      await toggleProductActiveAction(id, !currentState)
       router.refresh()
     })
   }

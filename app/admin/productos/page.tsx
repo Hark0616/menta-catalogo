@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getProducts } from '@/lib/actions/products'
+import { getProducts, deleteProduct, toggleProductActive } from '@/lib/actions/products'
 import ProductTable from '@/components/admin/ProductTable'
 
 export default async function ProductosPage() {
@@ -28,7 +28,11 @@ export default async function ProductosPage() {
       </div>
 
       {/* Tabla de productos */}
-      <ProductTable products={products} />
+      <ProductTable 
+        products={products}
+        deleteProductAction={deleteProduct}
+        toggleProductActiveAction={toggleProductActive}
+      />
     </div>
   )
 }
