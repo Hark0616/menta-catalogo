@@ -82,7 +82,7 @@ export default function CategoryForm({ categories, menu }: CategoryFormProps) {
   }, [])
 
   const onDeleteClick = useCallback((id: string, name: string) => {
-    if (!confirm(`¿Estás segura de eliminar "${name}"? Las subcategorías también se eliminarán.`)) return
+    // if (!confirm(`¿Estás segura de eliminar "${name}"? Las subcategorías también se eliminarán.`)) return
     setDeleting(id)
     setError(null)
     // The expensive re-render is now fast, so we can call performDelete directly.
