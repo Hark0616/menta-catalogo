@@ -1,7 +1,5 @@
-'use client'
-
 import { useState, useCallback, useMemo } from 'react'
-import { useFormStatus } from 'react-dom'
+import { useFormStatus, useFormState } from 'react-dom'
 import { type MenuType } from '@/lib/actions/categories'
 import type { Category } from '@/lib/types/database'
 import CategoryListItem from './CategoryListItem'
@@ -13,7 +11,7 @@ interface CategoryWithParent extends Category {
 interface CategoryFormProps {
   categories: CategoryWithParent[]
   menu: MenuType
-  createCategoryAction: (formData: FormData) => Promise<any>
+  createCategoryAction: (prevState: { error: string | null }, formData: FormData) => Promise<{ error: string | null }>
   updateCategoryAction: (id: string, formData: FormData) => Promise<any>
   deleteCategoryAction: (id: string) => Promise<any>
 }
@@ -42,8 +40,10 @@ export default function CategoryForm({
   deleteCategoryAction
 }: CategoryFormProps) {
   const [editing, setEditing] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
+
+  // Use useFormState for the create category form
+  const [createFormState, formAction] = useFormState(createCategoryAction, { error: null });
 
   // Memoize category filtering to avoid re-calculation on every render
   const parentCategories = useMemo(() => categories.filter(c => !c.parent_id), [categories])
@@ -65,20 +65,12 @@ export default function CategoryForm({
     [subcategoriesMap]
   )
 
-  async function handleCreate(formData: FormData) {
-    setError(null)
-    const result = await createCategoryAction(formData)
-    if (result.error) {
-      setError(result.error)
-    }
-  }
-
   // Wrap handlers in useCallback
   const handleUpdate = useCallback(async (id: string, formData: FormData) => {
-    setError(null)
     const result = await updateCategoryAction(id, formData)
     if (result.error) {
-      setError(result.error)
+      // You might want a dedicated state for update errors too, or reuse the main error
+      console.error("Update Error:", result.error);
     } else {
       setEditing(null)
     }
@@ -86,14 +78,15 @@ export default function CategoryForm({
 
   const performDelete = useCallback(async (id: string) => {
     const result = await deleteCategoryAction(id)
-    if (result?.error) setError(result.error)
+    if (result?.error) {
+      console.error("Delete Error:", result.error);
+    }
     setDeleting(null)
   }, [deleteCategoryAction])
 
   const onDeleteClick = useCallback((id: string, name: string) => {
     // if (!confirm(`¿Estás segura de eliminar "${name}"? Las subcategorías también se eliminarán.`)) return
     setDeleting(id)
-    setError(null)
     // The expensive re-render is now fast, so we can call performDelete directly.
     // requestAnimationFrame is not strictly necessary but can be kept for safety.
     requestAnimationFrame(() => {
@@ -108,14 +101,14 @@ export default function CategoryForm({
 
   return (
     <div className="space-y-6">
-      {error && (
+      {createFormState.error && ( // Display error from useFormState
         <div className="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded-sm text-sm flex items-start gap-3">
           <span className="text-amber-500 shrink-0" aria-hidden="true">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </span>
-          <p className="pt-0.5">{error}</p>
+          <p className="pt-0.5">{createFormState.error}</p>
         </div>
       )}
 
@@ -124,7 +117,7 @@ export default function CategoryForm({
         <h3 className="font-heading text-lg text-jungle-deep mb-4">
           Nueva Categoría — {menu}
         </h3>
-        <form action={handleCreate} className="flex flex-wrap gap-4 items-end">
+        <form action={formAction} className="flex flex-wrap gap-4 items-end">
           <input type="hidden" name="menu" value={menu} />
           <div className="flex-1 min-w-[200px]">
             <label className="block text-jungle-muted text-xs tracking-wide uppercase mb-2">
