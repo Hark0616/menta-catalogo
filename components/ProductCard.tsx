@@ -6,17 +6,24 @@ import type { Product } from '@/lib/types/database';
 
 interface ProductCardProps {
   product: Product;
+  onClick: () => void;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, onClick }: ProductCardProps) {
   const imageUrl = product.image_url || 'https://picsum.photos/400/400';
   
   return (
-    <a 
-      href={product.affiliate_link}
-      target="_blank"
-      rel="noopener noreferrer nofollow"
-      className="group block"
+    <div 
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      className="group block cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-gold"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
       onMouseEnter={() => {
         if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
           window.requestIdleCallback(() => {
@@ -60,6 +67,6 @@ export default function ProductCard({ product }: ProductCardProps) {
           ${product.price.toFixed(2)}
         </p>
       </div>
-    </a>
+    </div>
   );
 }
