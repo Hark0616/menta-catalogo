@@ -149,6 +149,9 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
             >
               Preguntar solo por este producto
             </a>
+            <p className="text-[10px] text-center text-jungle-muted/80 italic mt-1.5 leading-relaxed">
+              ✨ ¡Descubre con tu asesora si hay ofertas secretas o regalitos especiales por tu compra hoy! 🎁
+            </p>
           </div>
         </div>
       </div>
