@@ -80,8 +80,8 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
         </div>
 
         {/* Detalles del producto */}
-        <div className="w-full md:w-[60%] p-6 flex flex-col justify-between h-auto md:h-full overflow-hidden">
-          <div className="flex-1 overflow-y-auto pr-1 mb-4">
+        <div className="w-full md:w-[60%] p-6 flex flex-col justify-between h-auto md:h-full md:overflow-hidden">
+          <div className="flex-1 md:overflow-y-auto pr-1 mb-4">
             {/* Marca */}
             <span className="inline-block bg-mint/80 border border-mint-border/30 px-3 py-1 text-jungle-muted text-[10px] tracking-[0.15em] uppercase mb-3">
               {product.brand}
