@@ -16,6 +16,22 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
   const cartItem = cart.find(item => item.product.id === product.id);
   const quantityInCart = cartItem ? cartItem.quantity : 0;
 
+  const [randomMessage, setRandomMessage] = React.useState('✨ ¡Escríbele a Rosa por WhatsApp y descubre si tiene ofertas secretas o regalitos especiales hoy! 🎁');
+
+  // Select a random message on mount or when product changes (client-side only to prevent hydration mismatch)
+  useEffect(() => {
+    const messages = [
+      '✨ ¡Escríbele a Rosa por WhatsApp y descubre si tiene ofertas secretas o regalitos especiales para ti hoy! 🎁',
+      '✨ ¡Pregúntale a Rosa si este producto viene con regalos o promociones adicionales en esta campaña! 🛍️',
+      '✨ ¡Escríbele a Rosa y entérate de las ofertas secretas y obsequios exclusivos de esta temporada! 💝',
+      '✨ ¡Pregúntale a Rosa por WhatsApp si hay descuentos sorpresa o detalles especiales por tu compra hoy! 💬',
+      '✨ ¡Rosa te asesora! Escríbele para descubrir si este producto tiene regalitos especiales hoy! 🎁✨',
+      '✨ ¡Arma tu pedido con Rosa y pregúntale por los descuentos especiales de este mes! 🌟'
+    ];
+    const randomIndex = Math.floor(Math.random() * messages.length);
+    setRandomMessage(messages[randomIndex]);
+  }, [product.id]);
+
   // Prevent body scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -150,7 +166,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
               Preguntar solo por este producto
             </a>
             <p className="text-[10px] text-center text-jungle-muted/80 italic mt-1.5 leading-relaxed">
-              ✨ ¡Descubre con tu asesora si hay ofertas secretas o regalitos especiales por tu compra hoy! 🎁
+              {randomMessage}
             </p>
           </div>
         </div>
