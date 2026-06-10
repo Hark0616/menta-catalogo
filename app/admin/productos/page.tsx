@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getProducts, deleteProduct, toggleProductActive } from '@/app/actions'
+import { getProducts, deleteProduct, toggleProductActive } from '@/lib/actions/products'
 import ProductTable from '@/components/admin/ProductTable'
 
 export default async function ProductosPage() {

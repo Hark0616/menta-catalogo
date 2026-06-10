@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { getCategoriesWithParent, createCategory, updateCategory, deleteCategory, type MenuType } from '@/app/actions'
+import { getCategoriesWithParent, createCategory, updateCategory, deleteCategory } from '@/lib/actions/categories'
+import { type MenuType } from '@/lib/types/database'
 import CategoryForm from '@/components/admin/CategoryForm'
 
 type SearchParams = { menu?: string }

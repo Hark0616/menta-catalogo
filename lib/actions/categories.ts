@@ -1,9 +1,9 @@
+'use server'
+
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { CategoryInsert } from '@/lib/types/database'
-
-export type MenuType = 'Natura' | 'NovaVenta'
+import { CategoryInsert, MenuType } from '@/lib/types/database'
 
 // Define Zod schema for Category creation
 const CategorySchema = z.object({
@@ -71,7 +71,7 @@ export async function getCategoriesWithParent(menu?: MenuType) {
   return data
 }
 
-export async function createCategory(formData: FormData) {
+export async function createCategory(prevState: { error: string | null } | null, formData: FormData) {
   const supabase = await createClient()
   if (!supabase) return { error: 'Supabase no configurado' }
 
@@ -118,7 +118,7 @@ export async function createCategory(formData: FormData) {
 
   revalidatePath('/admin/categorias')
   revalidatePath('/')
-  return { success: true }
+  return { error: null }
 }
 
 

@@ -1,6 +1,8 @@
+'use client'
+
 import { useState, useCallback, useMemo } from 'react'
 import { useFormStatus, useFormState } from 'react-dom'
-import { type MenuType } from '@/lib/actions/categories'
+import { type MenuType } from '@/lib/types/database'
 import type { Category } from '@/lib/types/database'
 import CategoryListItem from './CategoryListItem'
 
