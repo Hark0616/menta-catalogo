@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import ScrollReveal from '@/components/ScrollReveal';
+import CartDrawer from '@/components/CartDrawer';
 import { getActiveProducts, getPublicCategoriesByMenu, organizeCategories } from '@/lib/data';
 
 // Dynamic imports para componentes no críticos (mejora First Contentful Paint)
@@ -128,6 +129,7 @@ export default async function Home() {
           </div>
         </ScrollReveal>
       </footer>
+      <CartDrawer />
     </main>
   );
 }
