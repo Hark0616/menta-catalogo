@@ -43,10 +43,10 @@ export default function CartDrawer() {
     const whatsappNumber = '573143811175';
     
     // Construct text message
-    let message = `¡Hola! Quiero hacer un pedido de tu catálogo *MENTA* 🌿. Mi lista de productos es:\n\n`;
+    let message = `¡Hola! Quiero hacer un pedido de tu catálogo *MENTA*. Mi lista de productos es:\n\n`;
     
     cart.forEach(item => {
-      message += `• *${item.quantity}x* ${item.product.name} (_${item.product.brand}_) — $${(item.product.price * item.quantity).toFixed(2)}\n`;
+      message += `- *${item.quantity}x* ${item.product.name} (${item.product.brand}) - $${(item.product.price * item.quantity).toFixed(2)}\n`;
     });
     
     message += `\n*Total estimado:* $${totalPrice.toFixed(2)}\n\n¿Están disponibles estos productos para entrega?`;
