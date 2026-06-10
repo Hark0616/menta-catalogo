@@ -53,7 +53,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
       aria-labelledby="modal-title"
     >
       <div 
-        className="bg-mint-soft max-w-3xl w-full max-h-[90vh] md:max-h-[85vh] overflow-y-auto md:overflow-hidden rounded-sm border border-mint-border/50 shadow-2xl flex flex-col md:flex-row relative animate-in fade-in zoom-in-95 duration-200"
+        className="bg-mint-soft max-w-2xl md:max-w-3xl w-full h-auto max-h-[90vh] md:h-[500px] overflow-y-auto md:overflow-hidden rounded-sm border border-mint-border/50 shadow-2xl flex flex-col md:flex-row relative animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Botón de cerrar */}
@@ -68,47 +68,47 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
         </button>
 
         {/* Imagen del producto */}
-        <div className="w-full md:w-1/2 relative aspect-[3/4] bg-white md:max-h-full">
+        <div className="w-full md:w-[40%] h-48 md:h-full relative bg-white shrink-0">
           <Image
             src={imageUrl}
             alt={product.name}
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 100vw, 50vw"
+            sizes="(max-width: 768px) 100vw, 40vw"
             priority
           />
         </div>
 
         {/* Detalles del producto */}
-        <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between overflow-y-auto">
-          <div>
+        <div className="w-full md:w-[60%] p-6 flex flex-col justify-between h-auto md:h-full overflow-hidden">
+          <div className="flex-1 overflow-y-auto pr-1 mb-4">
             {/* Marca */}
-            <span className="inline-block bg-mint/80 border border-mint-border/30 px-3 py-1 text-jungle-muted text-[10px] tracking-[0.15em] uppercase mb-4">
+            <span className="inline-block bg-mint/80 border border-mint-border/30 px-3 py-1 text-jungle-muted text-[10px] tracking-[0.15em] uppercase mb-3">
               {product.brand}
             </span>
 
             {/* Nombre */}
-            <h2 id="modal-title" className="font-heading text-2xl md:text-3xl text-jungle-deep mb-2">
+            <h2 id="modal-title" className="font-heading text-xl md:text-2xl text-jungle-deep mb-1.5 leading-tight">
               {product.name}
             </h2>
 
             {/* Precio */}
-            <p className="text-xl text-gold font-medium mb-6">
+            <p className="text-lg text-gold font-medium mb-4">
               ${product.price.toFixed(2)}
             </p>
 
             {/* Descripción */}
-            <div className="space-y-2 mb-8 text-jungle-muted text-sm leading-relaxed max-h-[200px] overflow-y-auto pr-2">
+            <div className="space-y-2 text-jungle-muted text-xs md:text-sm leading-relaxed">
               {product.description ? (
                 <p className="whitespace-pre-line">{product.description}</p>
               ) : (
-                <p className="italic">Este producto no cuenta con descripción adicional, pero puedes adquirirlo o consultar detalles directamente con tu asesora.</p>
+                <p className="italic text-xs text-jungle-muted/70">Este producto no cuenta con descripción adicional, pero puedes adquirirlo o consultar detalles directamente con tu asesora.</p>
               )}
             </div>
           </div>
 
           {/* Botones de acción */}
-          <div className="space-y-3 pt-4 border-t border-mint-border/30">
+          <div className="space-y-2.5 pt-4 border-t border-mint-border/30 shrink-0">
             {/* Botón de añadir a la lista */}
             <button
               onClick={handleAddAndOpenList}
